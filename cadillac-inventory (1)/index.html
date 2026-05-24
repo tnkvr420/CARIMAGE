@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CADI | Cadillac Inventory Management</title>
+  <meta name="description" content="Premium Cadillac vehicle inventory management system. Browse, add, edit, and manage luxury Cadillac vehicles with an elegant dark-themed interface." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --gold: #C9A84C;
+      --gold-light: #E4C77A;
+      --gold-dark: #8B6914;
+      --chrome: #C0C0C0;
+      --chrome-light: #E8E8E8;
+      --black: #0A0A0A;
+      --dark: #111111;
+      --dark-2: #1A1A1A;
+      --dark-3: #222222;
+      --dark-4: #2A2A2A;
+      --text-primary: #F5F0E8;
+      --text-secondary: #A89A7A;
+      --text-muted: #666660;
+      --border: rgba(201, 168, 76, 0.2);
+      --border-hover: rgba(201, 168, 76, 0.5);
+      --glow: 0 0 30px rgba(201, 168, 76, 0.15);
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--black);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── SCROLLBAR ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--dark); }
+    ::-webkit-scrollbar-thumb { background: var(--gold-dark); border-radius: 3px; }
+
+    /* ── HEADER ── */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      background: rgba(10, 10, 10, 0.92);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-crest {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--black);
+      letter-spacing: 0.1em;
+    }
+
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .logo-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--gold-light);
+      letter-spacing: 0.2em;
+      line-height: 1;
+    }
+
+    .logo-tagline {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      line-height: 1;
+      margin-top: 2px;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .nav-stat {
+      text-align: center;
+    }
+
+    .nav-stat-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .nav-stat-label {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .btn-add-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 20px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      border: none;
+      border-radius: 4px;
+      color: var(--black);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-add-header:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(201, 168, 76, 0.35);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 80px;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(to bottom, rgba(10,10,10,0.3) 0%, rgba(10,10,10,0.7) 60%, var(--black) 100%),
+        linear-gradient(135deg, #0A0A0A 0%, #1a1208 50%, #0A0A0A 100%);
+    }
+
+    .hero-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+
+    .hero-orb {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    .hero-orb-1 {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+      top: -100px; right: -100px;
+    }
+
+    .hero-orb-2 {
+      width: 400px; height: 400px;
+      background: radial-gradient(circle, rgba(192,192,192,0.06) 0%, transparent 70%);
+      bottom: 100px; left: 10%;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 6rem;
+      max-width: 900px;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 0.5em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .hero-eyebrow::before {
+      content: '';
+      width: 40px;
+      height: 1px;
+      background: var(--gold);
+    }
+
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 7vw, 6rem);
+      font-weight: 300;
+      line-height: 1.05;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title strong {
+      font-weight: 600;
+      color: var(--gold-light);
+      display: block;
+    }
+
+    .hero-desc {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      max-width: 480px;
+      line-height: 1.8;
+      margin-bottom: 2.5rem;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn-primary {
+      padding: 14px 36px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      border: none;
+      border-radius: 4px;
+      color: var(--black);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(201, 168, 76, 0.4);
+    }
+
+    .btn-secondary {
+      padding: 14px 36px;
+      background: transparent;
+      border: 1px solid var(--border-hover);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-secondary:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201, 168, 76, 0.05);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 30px;
+      right: 6rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+    }
+
+    .scroll-line {
+      width: 40px;
+      height: 1px;
+      background: var(--text-muted);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%;
+      height: 100%;
+      background: var(--gold);
+      animation: scroll-anim 2s ease-in-out infinite;
+    }
+
+    @keyframes scroll-anim {
+      0% { left: -100%; }
+      100% { left: 100%; }
+    }
+
+    /* ── MAIN CONTENT ── */
+    main {
+      background: var(--black);
+      padding: 4rem 4rem;
+    }
+
+    /* ── CONTROLS ── */
+    .controls-bar {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 2.5rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .controls-left {
+      display: flex;
+      gap: 1rem;
+      flex: 1;
+      flex-wrap: wrap;
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 240px;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1rem;
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 11px 14px 11px 40px;
+      background: var(--dark-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.875rem;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .search-input::placeholder { color: var(--text-muted); }
+
+    .search-input:focus {
+      border-color: var(--gold);
+      background: var(--dark-3);
+      box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
+    }
+
+    .filter-select {
+      padding: 11px 14px;
+      background: var(--dark-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.875rem;
+      cursor: pointer;
+      outline: none;
+      transition: var(--transition);
+      min-width: 130px;
+    }
+
+    .filter-select option { background: var(--dark-3); color: var(--text-primary); }
+
+    .filter-select:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
+    }
+
+    .controls-right {
+      display: flex;
+      gap: 8px;
+    }
+
+    .view-btn {
+      width: 38px; height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--dark-2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: var(--transition);
+      font-size: 1rem;
+    }
+
+    .view-btn.active, .view-btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    /* ── RESULTS HEADER ── */
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .results-count {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+    }
+
+    .results-count strong {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    /* ── INVENTORY GRID ── */
+    #inventory-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.5rem;
+      transition: var(--transition);
+    }
+
+    #inventory-grid.list-view {
+      grid-template-columns: 1fr;
+    }
+
+    /* ── VEHICLE CARD ── */
+    .vehicle-card {
+      background: var(--dark-2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: var(--transition);
+      cursor: pointer;
+      position: relative;
+    }
+
+    .vehicle-card:hover {
+      border-color: var(--border-hover);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.5), var(--glow);
+    }
+
+    .card-image-wrap {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+      background: var(--dark-3);
+    }
+
+    .card-image-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+
+    .vehicle-card:hover .card-image-wrap img {
+      transform: scale(1.05);
+    }
+
+    .card-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .badge-new {
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      color: var(--black);
+    }
+
+    .badge-used {
+      background: rgba(192, 192, 192, 0.2);
+      color: var(--chrome-light);
+      border: 1px solid rgba(192,192,192,0.3);
+    }
+
+    .badge-certified {
+      background: rgba(201, 168, 76, 0.15);
+      color: var(--gold-light);
+      border: 1px solid var(--border-hover);
+    }
+
+    .card-gallery-count {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 3px 8px;
+      font-size: 0.65rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .card-img-placeholder {
+      width: 100%; height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 2.5rem;
+      gap: 8px;
+      background: linear-gradient(135deg, var(--dark-3), var(--dark-4));
+    }
+
+    .card-img-placeholder span {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .card-body {
+      padding: 1.2rem;
+    }
+
+    .card-year {
+      font-size: 0.7rem;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .card-trim {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 12px;
+    }
+
+    .card-specs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 14px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .card-spec {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .card-spec-icon { font-size: 0.8rem; }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--gold-light);
+    }
+
+    .card-price-label {
+      font-size: 0.6rem;
+      color: var(--text-muted);
+      letter-spacing: 0.1em;
+      display: block;
+      text-align: right;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .card-action-btn {
+      width: 32px; height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--dark-3);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      transition: var(--transition);
+    }
+
+    .card-action-btn:hover { border-color: var(--gold); color: var(--gold); }
+    .card-action-btn.delete:hover { border-color: #c0392b; color: #c0392b; }
+
+    /* ── LIST VIEW ── */
+    #inventory-grid.list-view .vehicle-card {
+      display: flex;
+      align-items: stretch;
+    }
+
+    #inventory-grid.list-view .card-image-wrap {
+      width: 240px;
+      min-width: 240px;
+      height: auto;
+    }
+
+    #inventory-grid.list-view .card-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    #inventory-grid.list-view .card-specs {
+      border: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── EMPTY STATE ── */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 6rem 2rem;
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      opacity: 0.3;
+    }
+
+    .empty-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .modal {
+      background: var(--dark-2);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 680px;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--gold-light);
+    }
+
+    .modal-close {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      transition: var(--transition);
+    }
+
+    .modal-close:hover { border-color: #c0392b; color: #c0392b; }
+
+    .modal-body { padding: 2rem; }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.2rem;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full { grid-column: 1 / -1; }
+
+    .form-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .form-input, .form-select, .form-textarea {
+      padding: 11px 14px;
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.875rem;
+      outline: none;
+      transition: var(--transition);
+    }
+
+    .form-input::placeholder { color: var(--text-muted); }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      border-color: var(--gold);
+      background: var(--dark-4);
+      box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.1);
+    }
+
+    .form-select option { background: var(--dark-3); }
+
+    .form-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    /* ── IMAGE UPLOAD ── */
+    .image-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+    }
+
+    .image-upload-area:hover, .image-upload-area.drag-over {
+      border-color: var(--gold);
+      background: rgba(201, 168, 76, 0.04);
+    }
+
+    .image-upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon { font-size: 2rem; margin-bottom: 8px; }
+    .upload-text { font-size: 0.8rem; color: var(--text-muted); }
+    .upload-hint { font-size: 0.7rem; color: var(--text-muted); opacity: 0.6; margin-top: 4px; }
+
+    .preview-images {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .preview-img-wrap {
+      position: relative;
+      width: 80px;
+      height: 60px;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .preview-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .preview-img-remove {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 18px;
+      height: 18px;
+      background: rgba(0,0,0,0.8);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 0.6rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-footer {
+      padding: 1.2rem 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .btn-cancel {
+      padding: 10px 24px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-cancel:hover { border-color: var(--text-secondary); }
+
+    .btn-save {
+      padding: 10px 28px;
+      background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+      border: none;
+      border-radius: 6px;
+      color: var(--black);
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-save:hover {
+      box-shadow: 0 6px 20px rgba(201, 168, 76, 0.35);
+      transform: translateY(-1px);
+    }
+
+    /* ── DETAIL MODAL ── */
+    .detail-modal {
+      max-width: 900px;
+    }
+
+    .detail-gallery {
+      position: relative;
+      height: 360px;
+      background: var(--dark-3);
+      overflow: hidden;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .detail-gallery img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      transition: var(--transition);
+      z-index: 2;
+    }
+
+    .gallery-nav:hover { border-color: var(--gold); color: var(--gold); }
+    .gallery-prev { left: 14px; }
+    .gallery-next { right: 14px; }
+
+    .gallery-dots {
+      position: absolute;
+      bottom: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+    }
+
+    .gallery-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .gallery-dot.active { background: var(--gold); width: 20px; border-radius: 3px; }
+
+    .detail-body {
+      padding: 2rem;
+    }
+
+    .detail-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-price-block {
+      text-align: right;
+    }
+
+    .detail-price {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 600;
+      color: var(--gold-light);
+      line-height: 1;
+    }
+
+    .detail-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding: 1.2rem;
+      background: var(--dark-3);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .detail-spec {
+      text-align: center;
+    }
+
+    .detail-spec-value {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+
+    .detail-spec-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .detail-description {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+
+    /* ── TOAST ── */
+    .toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 500;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .toast {
+      padding: 14px 20px;
+      background: var(--dark-3);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
+      color: var(--text-primary);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      animation: toastIn 0.3s ease;
+      min-width: 260px;
+    }
+
+    .toast.success { border-left: 3px solid var(--gold); }
+    .toast.error { border-left: 3px solid #c0392b; }
+
+    @keyframes toastIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* ── DELETE CONFIRM ── */
+    .confirm-modal {
+      max-width: 420px;
+    }
+
+    .confirm-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: rgba(192, 57, 43, 0.1);
+      border: 1px solid rgba(192, 57, 43, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin: 0 auto 1rem;
+    }
+
+    .confirm-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      text-align: center;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .confirm-desc {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .btn-danger {
+      padding: 10px 28px;
+      background: linear-gradient(135deg, #c0392b, #962d22);
+      border: none;
+      border-radius: 6px;
+      color: #fff;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-danger:hover {
+      box-shadow: 0 6px 20px rgba(192, 57, 43, 0.4);
+      transform: translateY(-1px);
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 4rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+      color: var(--gold);
+      letter-spacing: 0.2em;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      .hero-content { padding: 0 2rem; }
+      main { padding: 2rem 1.5rem; }
+      .form-grid { grid-template-columns: 1fr; }
+      .detail-specs-grid { grid-template-columns: repeat(2, 1fr); }
+      header { padding: 0 1rem; }
+      .nav-stat { display: none; }
+      #inventory-grid.list-view .card-image-wrap { width: 140px; min-width: 140px; }
+      footer { padding: 1.5rem; flex-direction: column; gap: 0.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header>
+  <a class="logo" href="#" onclick="scrollTo(0,0)">
+    <div class="logo-crest">C</div>
+    <div class="logo-text">
+      <span class="logo-name">CADI</span>
+      <span class="logo-tagline">Inventory System</span>
+    </div>
+  </a>
+  <nav>
+    <div class="nav-stat">
+      <div class="nav-stat-value" id="total-count">0</div>
+      <div class="nav-stat-label">Vehicles</div>
+    </div>
+    <div class="nav-stat">
+      <div class="nav-stat-value" id="new-count">0</div>
+      <div class="nav-stat-label">New</div>
+    </div>
+    <button class="btn-add-header" id="add-btn-header" onclick="openAddModal()">
+      ＋ Add Vehicle
+    </button>
+  </nav>
+</header>
+
+<!-- ── HERO ── -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Cadillac Inventory Management</div>
+    <h1 class="hero-title">
+      The Standard of
+      <strong>The World</strong>
+    </h1>
+    <p class="hero-desc">Manage your premium Cadillac vehicle inventory with elegance. Browse, add, edit, and showcase every vehicle in your collection.</p>
+    <div class="hero-actions">
+      <button class="btn-primary" onclick="document.getElementById('inventory-section').scrollIntoView({behavior:'smooth'})">View Inventory</button>
+      <button class="btn-secondary" onclick="openAddModal()">Add Vehicle</button>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll to explore
+  </div>
+</section>
+
+<!-- ── INVENTORY SECTION ── -->
+<main id="inventory-section">
+  <div class="controls-bar">
+    <div class="controls-left">
+      <div class="search-wrap">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          id="search-input"
+          class="search-input"
+          placeholder="Search by model, trim, year…"
+          oninput="renderInventory()"
+        />
+      </div>
+      <select id="filter-status" class="filter-select" onchange="renderInventory()">
+        <option value="">All Status</option>
+        <option value="New">New</option>
+        <option value="Used">Used</option>
+        <option value="Certified Pre-Owned">Certified Pre-Owned</option>
+      </select>
+      <select id="filter-model" class="filter-select" onchange="renderInventory()">
+        <option value="">All Models</option>
+      </select>
+      <select id="sort-select" class="filter-select" onchange="renderInventory()">
+        <option value="newest">Newest First</option>
+        <option value="oldest">Oldest First</option>
+        <option value="price-asc">Price: Low → High</option>
+        <option value="price-desc">Price: High → Low</option>
+        <option value="year-desc">Year: Newest</option>
+        <option value="year-asc">Year: Oldest</option>
+      </select>
+    </div>
+    <div class="controls-right">
+      <button class="view-btn active" id="grid-view-btn" title="Grid View" onclick="setView('grid')">⊞</button>
+      <button class="view-btn" id="list-view-btn" title="List View" onclick="setView('list')">☰</button>
+    </div>
+  </div>
+
+  <div class="results-header">
+    <div class="results-count">
+      Showing <strong id="results-num">0</strong> vehicles
+    </div>
+  </div>
+
+  <div id="inventory-grid"></div>
+</main>
+
+<footer>
+  <div class="footer-logo">CADI</div>
+  <div>© 2025 Cadillac Inventory System · All rights reserved</div>
+  <div>Premium Vehicles</div>
+</footer>
+
+<!-- ── ADD / EDIT MODAL ── -->
+<div class="modal-overlay" id="form-modal" onclick="handleOverlayClick(event, 'form-modal')">
+  <div class="modal" id="form-modal-inner">
+    <div class="modal-header">
+      <div class="modal-title" id="form-modal-title">Add New Vehicle</div>
+      <button class="modal-close" onclick="closeModal('form-modal')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="f-year">Year</label>
+          <input type="number" id="f-year" class="form-input" placeholder="2025" min="1950" max="2030" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-model">Model</label>
+          <select id="f-model" class="form-select">
+            <option value="">Select Model</option>
+            <option>Escalade</option>
+            <option>Escalade ESV</option>
+            <option>CT4</option>
+            <option>CT4-V</option>
+            <option>CT4-V Blackwing</option>
+            <option>CT5</option>
+            <option>CT5-V</option>
+            <option>CT5-V Blackwing</option>
+            <option>LYRIQ</option>
+            <option>OPTIQ</option>
+            <option>VISTIQ</option>
+            <option>XT4</option>
+            <option>XT5</option>
+            <option>XT6</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-trim">Trim</label>
+          <input type="text" id="f-trim" class="form-input" placeholder="e.g. Luxury, Sport, Platinum" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-status">Status</label>
+          <select id="f-status" class="form-select">
+            <option value="New">New</option>
+            <option value="Used">Used</option>
+            <option value="Certified Pre-Owned">Certified Pre-Owned</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-price">Price (USD)</label>
+          <input type="number" id="f-price" class="form-input" placeholder="65000" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-mileage">Mileage</label>
+          <input type="number" id="f-mileage" class="form-input" placeholder="0" min="0" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-color">Exterior Color</label>
+          <input type="text" id="f-color" class="form-input" placeholder="e.g. Midnight Sky" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-interior">Interior Color</label>
+          <input type="text" id="f-interior" class="form-input" placeholder="e.g. Jet Black" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-engine">Engine</label>
+          <input type="text" id="f-engine" class="form-input" placeholder="e.g. 6.2L V8" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="f-vin">VIN</label>
+          <input type="text" id="f-vin" class="form-input" placeholder="Vehicle Identification Number" maxlength="17" />
+        </div>
+        <div class="form-group full">
+          <label class="form-label" for="f-description">Description / Notes</label>
+          <textarea id="f-description" class="form-textarea" placeholder="Additional details, features, or notes about this vehicle…"></textarea>
+        </div>
+        <div class="form-group full">
+          <label class="form-label">Photos</label>
+          <div class="image-upload-area" id="upload-area">
+            <input type="file" id="f-images" accept="image/*" multiple onchange="handleImages(event)" />
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">Click or drag photos here</div>
+            <div class="upload-hint">JPG, PNG, WEBP — Multiple allowed</div>
+          </div>
+          <div class="preview-images" id="preview-images"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeModal('form-modal')">Cancel</button>
+      <button class="btn-save" onclick="saveVehicle()">Save Vehicle</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DETAIL MODAL ── -->
+<div class="modal-overlay" id="detail-modal" onclick="handleOverlayClick(event, 'detail-modal')">
+  <div class="modal detail-modal" id="detail-modal-inner">
+    <div id="detail-gallery-wrap" class="detail-gallery">
+      <button class="gallery-nav gallery-prev" id="gallery-prev" onclick="galleryNav(-1)">&#8249;</button>
+      <img id="detail-gallery-img" src="" alt="Vehicle" />
+      <button class="gallery-nav gallery-next" id="gallery-next" onclick="galleryNav(1)">&#8250;</button>
+      <div class="gallery-dots" id="gallery-dots"></div>
+    </div>
+    <div class="modal-header" style="border-radius:0;">
+      <div>
+        <div class="card-year" id="d-year"></div>
+        <div class="modal-title" id="d-model"></div>
+        <div class="card-trim" id="d-trim"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="card-action-btn" id="d-edit-btn" title="Edit">✏️</button>
+        <button class="modal-close" onclick="closeModal('detail-modal')">✕</button>
+      </div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-specs-grid">
+        <div class="detail-spec">
+          <div class="detail-spec-value" id="d-price">—</div>
+          <div class="detail-spec-label">Price</div>
+        </div>
+        <div class="detail-spec">
+          <div class="detail-spec-value" id="d-mileage">—</div>
+          <div class="detail-spec-label">Mileage</div>
+        </div>
+        <div class="detail-spec">
+          <div class="detail-spec-value" id="d-engine">—</div>
+          <div class="detail-spec-label">Engine</div>
+        </div>
+        <div class="detail-spec">
+          <div class="detail-spec-value" id="d-status">—</div>
+          <div class="detail-spec-label">Status</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem;">
+        <div class="card-spec"><span>🎨</span> <span id="d-color">—</span></div>
+        <div class="card-spec"><span>🪑</span> <span id="d-interior">—</span></div>
+        <div class="card-spec"><span>🔑</span> <span id="d-vin">—</span></div>
+      </div>
+      <p class="detail-description" id="d-description"></p>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE CONFIRM MODAL ── -->
+<div class="modal-overlay" id="confirm-modal" onclick="handleOverlayClick(event, 'confirm-modal')">
+  <div class="modal confirm-modal">
+    <div class="modal-body" style="text-align:center;padding:2.5rem 2rem;">
+      <div class="confirm-icon">🗑️</div>
+      <div class="confirm-title">Remove Vehicle?</div>
+      <p class="confirm-desc" id="confirm-desc">This vehicle will be permanently removed from your inventory.</p>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn-cancel" onclick="closeModal('confirm-modal')">Cancel</button>
+      <button class="btn-danger" id="confirm-delete-btn">Remove Vehicle</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST CONTAINER ── -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  // ── DATA ──
+  let inventory = JSON.parse(localStorage.getItem('cadi-inventory') || '[]');
+  let editingId = null;
+  let currentImages = []; // base64 array
+  let detailVehicleId = null;
+  let galleryIndex = 0;
+  let currentView = 'grid';
+  let deleteTargetId = null;
+
+  function save() {
+    localStorage.setItem('cadi-inventory', JSON.stringify(inventory));
+    updateStats();
+  }
+
+  function updateStats() {
+    document.getElementById('total-count').textContent = inventory.length;
+    document.getElementById('new-count').textContent = inventory.filter(v => v.status === 'New').length;
+  }
+
+  // ── RENDER ──
+  function renderInventory() {
+    const query = document.getElementById('search-input').value.toLowerCase().trim();
+    const filterStatus = document.getElementById('filter-status').value;
+    const filterModel = document.getElementById('filter-model').value;
+    const sort = document.getElementById('sort-select').value;
+
+    let filtered = [...inventory];
+
+    if (query) {
+      filtered = filtered.filter(v =>
+        (v.model || '').toLowerCase().includes(query) ||
+        (v.trim || '').toLowerCase().includes(query) ||
+        String(v.year || '').includes(query) ||
+        (v.color || '').toLowerCase().includes(query) ||
+        (v.description || '').toLowerCase().includes(query)
+      );
+    }
+
+    if (filterStatus) filtered = filtered.filter(v => v.status === filterStatus);
+    if (filterModel) filtered = filtered.filter(v => v.model === filterModel);
+
+    // Sort
+    filtered.sort((a, b) => {
+      switch (sort) {
+        case 'newest': return b.id - a.id;
+        case 'oldest': return a.id - b.id;
+        case 'price-asc': return (a.price || 0) - (b.price || 0);
+        case 'price-desc': return (b.price || 0) - (a.price || 0);
+        case 'year-desc': return (b.year || 0) - (a.year || 0);
+        case 'year-asc': return (a.year || 0) - (b.year || 0);
+        default: return 0;
+      }
+    });
+
+    const grid = document.getElementById('inventory-grid');
+    document.getElementById('results-num').textContent = filtered.length;
+
+    if (filtered.length === 0) {
+      grid.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">🚗</div>
+        <div class="empty-title">No Vehicles Found</div>
+        <p class="empty-desc">${inventory.length === 0 ? 'Add your first Cadillac to get started.' : 'Try adjusting your search or filters.'}</p>
+      </div>`;
+      return;
+    }
+
+    grid.innerHTML = filtered.map(v => vehicleCard(v)).join('');
+
+    // Update model filter options
+    const models = [...new Set(inventory.map(v => v.model).filter(Boolean))].sort();
+    const modelSelect = document.getElementById('filter-model');
+    const current = modelSelect.value;
+    modelSelect.innerHTML = '<option value="">All Models</option>' + models.map(m => `<option value="${m}" ${m === current ? 'selected' : ''}>${m}</option>`).join('');
+  }
+
+  function vehicleCard(v) {
+    const hasImages = v.images && v.images.length > 0;
+    const badgeClass = v.status === 'New' ? 'badge-new' : v.status === 'Certified Pre-Owned' ? 'badge-certified' : 'badge-used';
+    const imgHtml = hasImages
+      ? `<img src="${v.images[0]}" alt="${v.year} Cadillac ${v.model}" loading="lazy" />`
+      : `<div class="card-img-placeholder">🚗<span>No Photo</span></div>`;
+
+    return `
+    <div class="vehicle-card" id="card-${v.id}" onclick="openDetail(${v.id})">
+      <div class="card-image-wrap">
+        ${imgHtml}
+        <div class="card-badge ${badgeClass}">${v.status}</div>
+        ${hasImages && v.images.length > 1 ? `<div class="card-gallery-count">📷 ${v.images.length}</div>` : ''}
+      </div>
+      <div class="card-body">
+        <div class="card-year">${v.year || '—'}</div>
+        <div class="card-title">Cadillac ${v.model || '—'}</div>
+        <div class="card-trim">${v.trim || 'Standard'}</div>
+        <div class="card-specs">
+          ${v.mileage !== undefined && v.mileage !== '' ? `<span class="card-spec"><span class="card-spec-icon">🔄</span>${Number(v.mileage).toLocaleString()} mi</span>` : ''}
+          ${v.engine ? `<span class="card-spec"><span class="card-spec-icon">⚙️</span>${v.engine}</span>` : ''}
+          ${v.color ? `<span class="card-spec"><span class="card-spec-icon">🎨</span>${v.color}</span>` : ''}
+        </div>
+        <div class="card-footer">
+          <div>
+            <div class="card-price">${v.price ? '$' + Number(v.price).toLocaleString() : 'Contact Us'}</div>
+          </div>
+          <div class="card-actions" onclick="event.stopPropagation()">
+            <button class="card-action-btn" title="Edit" onclick="openEditModal(${v.id})">✏️</button>
+            <button class="card-action-btn delete" title="Delete" onclick="confirmDelete(${v.id})">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── ADD / EDIT ──
+  function openAddModal() {
+    editingId = null;
+    currentImages = [];
+    document.getElementById('form-modal-title').textContent = 'Add New Vehicle';
+    ['f-year','f-model','f-trim','f-status','f-price','f-mileage','f-color','f-interior','f-engine','f-vin','f-description'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el.tagName === 'SELECT') el.value = el.options[0]?.value || '';
+      else el.value = '';
+    });
+    document.getElementById('f-status').value = 'New';
+    document.getElementById('preview-images').innerHTML = '';
+    openModal('form-modal');
+  }
+
+  function openEditModal(id) {
+    const v = inventory.find(x => x.id === id);
+    if (!v) return;
+    editingId = id;
+    currentImages = [...(v.images || [])];
+    document.getElementById('form-modal-title').textContent = 'Edit Vehicle';
+    document.getElementById('f-year').value = v.year || '';
+    document.getElementById('f-model').value = v.model || '';
+    document.getElementById('f-trim').value = v.trim || '';
+    document.getElementById('f-status').value = v.status || 'New';
+    document.getElementById('f-price').value = v.price || '';
+    document.getElementById('f-mileage').value = v.mileage !== undefined ? v.mileage : '';
+    document.getElementById('f-color').value = v.color || '';
+    document.getElementById('f-interior').value = v.interior || '';
+    document.getElementById('f-engine').value = v.engine || '';
+    document.getElementById('f-vin').value = v.vin || '';
+    document.getElementById('f-description').value = v.description || '';
+    renderPreviewImages();
+    openModal('form-modal');
+  }
+
+  function saveVehicle() {
+    const year = document.getElementById('f-year').value;
+    const model = document.getElementById('f-model').value;
+
+    if (!model) { showToast('Please select a model.', 'error'); return; }
+
+    const data = {
+      year: year ? parseInt(year) : null,
+      model,
+      trim: document.getElementById('f-trim').value,
+      status: document.getElementById('f-status').value,
+      price: document.getElementById('f-price').value ? parseFloat(document.getElementById('f-price').value) : null,
+      mileage: document.getElementById('f-mileage').value !== '' ? parseInt(document.getElementById('f-mileage').value) : '',
+      color: document.getElementById('f-color').value,
+      interior: document.getElementById('f-interior').value,
+      engine: document.getElementById('f-engine').value,
+      vin: document.getElementById('f-vin').value,
+      description: document.getElementById('f-description').value,
+      images: [...currentImages],
+    };
+
+    if (editingId !== null) {
+      const idx = inventory.findIndex(v => v.id === editingId);
+      inventory[idx] = { ...inventory[idx], ...data };
+      showToast('Vehicle updated successfully.', 'success');
+    } else {
+      data.id = Date.now();
+      inventory.unshift(data);
+      showToast('Vehicle added to inventory!', 'success');
+    }
+
+    save();
+    renderInventory();
+    closeModal('form-modal');
+  }
+
+  // ── IMAGES ──
+  function handleImages(event) {
+    const files = Array.from(event.target.files);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        currentImages.push(e.target.result);
+        renderPreviewImages();
+      };
+      reader.readAsDataURL(file);
+    });
+    event.target.value = '';
+  }
+
+  function renderPreviewImages() {
+    const container = document.getElementById('preview-images');
+    container.innerHTML = currentImages.map((src, i) => `
+      <div class="preview-img-wrap">
+        <img src="${src}" alt="Preview ${i+1}" />
+        <button class="preview-img-remove" onclick="removePreviewImage(${i})">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function removePreviewImage(index) {
+    currentImages.splice(index, 1);
+    renderPreviewImages();
+  }
+
+  // ── DETAIL VIEW ──
+  function openDetail(id) {
+    const v = inventory.find(x => x.id === id);
+    if (!v) return;
+    detailVehicleId = id;
+    galleryIndex = 0;
+
+    // Gallery
+    const hasImg = v.images && v.images.length > 0;
+    const galleryWrap = document.getElementById('detail-gallery-wrap');
+    const img = document.getElementById('detail-gallery-img');
+    const dots = document.getElementById('gallery-dots');
+    const prev = document.getElementById('gallery-prev');
+    const next = document.getElementById('gallery-next');
+
+    if (hasImg) {
+      galleryWrap.style.display = 'block';
+      img.src = v.images[0];
+      dots.innerHTML = v.images.map((_, i) => `<div class="gallery-dot ${i===0?'active':''}" onclick="goToGallery(${i})"></div>`).join('');
+      prev.style.display = v.images.length > 1 ? 'flex' : 'none';
+      next.style.display = v.images.length > 1 ? 'flex' : 'none';
+    } else {
+      galleryWrap.style.display = 'none';
+    }
+
+    document.getElementById('d-year').textContent = v.year || '';
+    document.getElementById('d-model').textContent = `Cadillac ${v.model || '—'}`;
+    document.getElementById('d-trim').textContent = v.trim || 'Standard';
+    document.getElementById('d-price').textContent = v.price ? '$' + Number(v.price).toLocaleString() : 'Contact Us';
+    document.getElementById('d-mileage').textContent = v.mileage !== '' && v.mileage !== undefined ? Number(v.mileage).toLocaleString() + ' mi' : '—';
+    document.getElementById('d-engine').textContent = v.engine || '—';
+    document.getElementById('d-status').textContent = v.status || '—';
+    document.getElementById('d-color').textContent = v.color || '—';
+    document.getElementById('d-interior').textContent = v.interior || '—';
+    document.getElementById('d-vin').textContent = v.vin || '—';
+    document.getElementById('d-description').textContent = v.description || 'No additional details provided.';
+
+    document.getElementById('d-edit-btn').onclick = () => {
+      closeModal('detail-modal');
+      setTimeout(() => openEditModal(id), 200);
+    };
+
+    openModal('detail-modal');
+  }
+
+  function galleryNav(dir) {
+    const v = inventory.find(x => x.id === detailVehicleId);
+    if (!v || !v.images) return;
+    galleryIndex = (galleryIndex + dir + v.images.length) % v.images.length;
+    goToGallery(galleryIndex);
+  }
+
+  function goToGallery(i) {
+    const v = inventory.find(x => x.id === detailVehicleId);
+    if (!v || !v.images) return;
+    galleryIndex = i;
+    document.getElementById('detail-gallery-img').src = v.images[i];
+    document.querySelectorAll('.gallery-dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
+  }
+
+  // ── DELETE ──
+  function confirmDelete(id) {
+    const v = inventory.find(x => x.id === id);
+    if (!v) return;
+    deleteTargetId = id;
+    document.getElementById('confirm-desc').textContent = `"${v.year || ''} Cadillac ${v.model}" will be permanently removed from inventory.`;
+    document.getElementById('confirm-delete-btn').onclick = () => {
+      inventory = inventory.filter(x => x.id !== deleteTargetId);
+      save();
+      renderInventory();
+      closeModal('confirm-modal');
+      showToast('Vehicle removed from inventory.', 'success');
+    };
+    openModal('confirm-modal');
+  }
+
+  // ── MODAL HELPERS ──
+  function openModal(id) {
+    document.getElementById(id).classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).classList.remove('open');
+    if (!document.querySelector('.modal-overlay.open')) {
+      document.body.style.overflow = '';
+    }
+  }
+
+  function handleOverlayClick(e, id) {
+    if (e.target === e.currentTarget) closeModal(id);
+  }
+
+  // ── VIEW TOGGLE ──
+  function setView(view) {
+    currentView = view;
+    const grid = document.getElementById('inventory-grid');
+    grid.classList.toggle('list-view', view === 'list');
+    document.getElementById('grid-view-btn').classList.toggle('active', view === 'grid');
+    document.getElementById('list-view-btn').classList.toggle('active', view === 'list');
+  }
+
+  // ── TOAST ──
+  function showToast(msg, type = 'success') {
+    const icon = type === 'success' ? '✅' : '❌';
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+    document.getElementById('toast-container').appendChild(toast);
+    setTimeout(() => toast.remove(), 3500);
+  }
+
+  // ── KEYBOARD ──
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      ['form-modal','detail-modal','confirm-modal'].forEach(id => closeModal(id));
+    }
+  });
+
+  // ── SEED DATA ──
+  function seedData() {
+    if (inventory.length > 0) return;
+    inventory = [
+      {
+        id: 1,
+        year: 2025,
+        model: 'Escalade',
+        trim: 'Platinum',
+        status: 'New',
+        price: 109995,
+        mileage: 0,
+        color: 'Midnight Sky Metallic',
+        interior: 'Whisper Beige',
+        engine: '6.2L V8 420 HP',
+        vin: '1GYS4PKJ5PR123456',
+        description: 'The pinnacle of full-size luxury SUVs. Features AKG Studio Reference Audio System, Super Cruise hands-free driving, and a breathtaking 38" curved OLED display. Panoramic sunroof and 22" ultra-bright machined wheels included.',
+        images: []
+      },
+      {
+        id: 2,
+        year: 2025,
+        model: 'CT5-V Blackwing',
+        trim: 'Carbon Fiber Package',
+        status: 'New',
+        price: 92095,
+        mileage: 0,
+        color: 'Infrared Tintcoat',
+        interior: 'Jet Black Leather',
+        engine: '6.2L Supercharged V8 668 HP',
+        vin: '1G6DX5RX5P0234567',
+        description: 'The most powerful production Cadillac ever built. Supercharged 668 HP V8, Brembo carbon ceramic brakes, Magnetic Ride Control 4.0. Carbon fiber hood, roof, and splitter. Track-ready luxury.',
+        images: []
+      },
+      {
+        id: 3,
+        year: 2024,
+        model: 'LYRIQ',
+        trim: 'Luxury AWD',
+        status: 'Certified Pre-Owned',
+        price: 58000,
+        mileage: 12400,
+        color: 'Opulent Blue',
+        interior: 'Cirrus Light',
+        engine: 'Electric Dual Motor 500 HP',
+        vin: '1GYS3BKJ5PU345678',
+        description: 'All-electric luxury redefined. Celestiq-inspired design with a 33" curved LED display. Super Cruise enabled, V2H charging capability, and an EPA-estimated 314-mile range.',
+        images: []
+      },
+      {
+        id: 4,
+        year: 2024,
+        model: 'XT6',
+        trim: 'Sport AWD',
+        status: 'Used',
+        price: 47500,
+        mileage: 22100,
+        color: 'Radiant Silver Metallic',
+        interior: 'Jet Black',
+        engine: '3.6L V6 310 HP',
+        vin: '1GYKPDRS9PZ456789',
+        description: 'Premium 3-row SUV with sport styling. Features a panoramic sunroof, Bose sound system, and magnetic ride control. Perfect family luxury vehicle.',
+        images: []
+      }
+    ];
+    save();
+  }
+
+  // ── INIT ──
+  seedData();
+  updateStats();
+  renderInventory();
+</script>
+</body>
+</html>

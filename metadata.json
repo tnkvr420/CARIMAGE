@@ -1,0 +1,7 @@
+{
+  "name": "Cadillac Inventory",
+  "description": "An AI-powered application to generate professional, studio-quality mockups of your car in various scenes and angles. Upload your car photos, choose a style, and let the AI create stunning visuals. You can also edit the generated images using simple text prompts.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
