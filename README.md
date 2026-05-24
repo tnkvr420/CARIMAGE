@@ -18,3 +18,4 @@ View your app in AI Studio: https://ai.studio/apps/002788d0-4932-432d-8bdb-df60e
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+"# CARIMAGE" 
