@@ -1350,12 +1350,32 @@ const App: React.FC = () => {
             const requestedAngles = ALL_ANGLES_FOR_GENERATION.slice(0, Math.min(count, ALL_ANGLES_FOR_GENERATION.length));
             const imageRefs = [uploadedImages.front, uploadedImages.rear].filter(Boolean) as ImageFile[];
 
+            const promises = requestedAngles.map(angle =>
+                generateImage(imageRefs, desc, angle.name, !!personImage, personImage, ratio, styleDescription, bgFile, imageSize, dealershipLogo)
+            );
+
+            const outcomes = await Promise.allSettled(promises);
+
             const results: string[] = [];
-            for (const angle of requestedAngles) {
-                const result = await generateImage(imageRefs, desc, angle.name, !!personImage, personImage, ratio, styleDescription, bgFile, imageSize, dealershipLogo);
-                results.push(result);
+            let failedCount = 0;
+
+            for (const outcome of outcomes) {
+                if (outcome.status === 'fulfilled') {
+                    results.push(outcome.value);
+                } else {
+                    failedCount++;
+                    console.error("Generation failed for an angle:", outcome.reason);
+                }
             }
             
+            if (results.length === 0 && failedCount > 0) {
+                alert("Generation failed for all requested shots. Please try again.");
+                setPage(Page.SelectScene);
+                return;
+            } else if (failedCount > 0) {
+                alert(`Generated ${results.length} shots. ${failedCount} shot(s) failed due to an error.`);
+            }
+
             setGenImages(results);
             setPage(Page.Results);
         } catch (e) {

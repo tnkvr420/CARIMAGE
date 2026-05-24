@@ -1,9 +1,24 @@
 
 // DO NOT use global API_KEY constant; obtain directly from process.env.API_KEY in the constructor.
-import { GoogleGenAI, GenerateContentResponse, ThinkingLevel } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, ThinkingLevel, Part } from "@google/genai";
 import { ImageFile } from '../types';
 
-async function fileToGenerativePart(file: File) {
+let aiClientInstance: GoogleGenAI | null = null;
+
+function getAiClient(): GoogleGenAI {
+  if (!aiClientInstance) {
+    aiClientInstance = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+  }
+  return aiClientInstance;
+}
+
+const filePartCache = new WeakMap<File, Part>();
+
+async function fileToGenerativePart(file: File): Promise<Part> {
+  if (filePartCache.has(file)) {
+    return filePartCache.get(file)!;
+  }
+
   const base64EncodedDataPromise = new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -16,9 +31,11 @@ async function fileToGenerativePart(file: File) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-  return {
+  const part = {
     inlineData: { data: await base64EncodedDataPromise, mimeType: file.type || 'image/jpeg' },
   };
+  filePartCache.set(file, part);
+  return part;
 }
 
 async function getBase64FromSource(source: string | File): Promise<{ data: string, mimeType: string }> {
@@ -46,7 +63,7 @@ export async function generateImage(
   imageSize: '1K' | '2K' | '4K' = '1K',
   logoImage: File | null = null
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+  const ai = getAiClient();
   
   // Intelligently select whether to use the front or rear reference based on the requested angle
   const angleLower = angleName.toLowerCase();
@@ -138,18 +155,18 @@ export async function editImage(
     editReferenceImage?: File
 ): Promise<string> {
     if (!base64Image) throw new Error("Base64 image is required for editing");
-    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+    const ai = getAiClient();
     const imageParts = base64Image.split(',');
     const base64Data = imageParts.length > 1 ? imageParts[1] : imageParts[0];
     const mimeType = base64Image.match(/data:(.*);base64,/)?.[1] || 'image/jpeg';
     
-    const imagePart = {
+    const imagePart: Part = {
       inlineData: { data: base64Data, mimeType: mimeType },
     };
 
-    const textPart = { text: userPrompt };
+    const textPart: Part = { text: userPrompt };
     
-    const parts = [imagePart, textPart];
+    const parts: Part[] = [imagePart, textPart];
 
     if (editReferenceImage) {
         const referenceImagePart = await fileToGenerativePart(editReferenceImage);
@@ -183,7 +200,7 @@ export async function generateVideo(
   prompt: string,
   aspectRatio: '16:9' | '9:16'
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+  const ai = getAiClient();
   
   const numImages = referenceImages.length;
   let model = 'veo-3.1-lite-generate-preview';
@@ -251,7 +268,7 @@ export async function generateVideo(
 }
 
 export async function enhanceSceneDescription(shortDescription: string): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+  const ai = getAiClient();
   const response: GenerateContentResponse = await ai.models.generateContent({
     model: 'gemini-3.1-flash-lite-preview',
     contents: `Expand this short description into a detailed, atmospheric scene description suitable for a professional automotive photoshoot. Keep it under 50 words. Description: "${shortDescription}"`,
@@ -261,7 +278,7 @@ export async function enhanceSceneDescription(shortDescription: string): Promise
 }
 
 export async function analyzeCarAndSuggestScene(carImage: File): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+  const ai = getAiClient();
   const carImagePart = await fileToGenerativePart(carImage);
   
   const response: GenerateContentResponse = await ai.models.generateContent({
@@ -284,7 +301,7 @@ export async function chatWithConcierge(
   history: { role: 'user' | 'model'; text: string }[],
   latestMessage: string
 ): Promise<string> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+  const ai = getAiClient();
   
   const systemInstruction = `You are a sophisticated, bespoke virtual concierge for Cadillac of Pasadena. Your persona is highly professional, articulate, elegant, and deeply knowledgeable about luxury automotive staging, fine arts, lighting, and cinematic environments.
 Your goal is to converse with the client and help them craft a breathtaking, specific virtual background prompt for a professional photo shoot of their vehicle.
