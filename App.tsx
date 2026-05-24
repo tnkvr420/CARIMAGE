@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Page, ImageFile } from './types';
 import { SCENES, ALL_ANGLES_FOR_GENERATION, ASPECT_RATIOS, STYLE_PRESETS } from './constants';
-import { generateImage, generateVideo, editImage, chatWithConcierge } from './services/geminiService';
+import { generateImage, generateVideo, editImage, chatWithConcierge, analyzeCarAndSuggestScene } from './services/geminiService';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
     ArrowLeft, Crown, Menu, Car, Wrench, Calendar, ArrowRight, MapPin, 
@@ -441,7 +441,6 @@ const SelectSceneScreen: React.FC<{
         if (!uploadedImages.length) return;
         setIsAnalyzing(true);
         try {
-            const { analyzeCarAndSuggestScene } = await import('./services/geminiService');
             const suggestion = await analyzeCarAndSuggestScene(uploadedImages[0].file);
             setCustomDesc(suggestion);
         } catch (e) {
