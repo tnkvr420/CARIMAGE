@@ -1381,6 +1381,7 @@ const App: React.FC = () => {
 
             const results: string[] = [];
             let failedCount = 0;
+            const errors: string[] = [];
 
             for (const outcome of outcomes) {
                 if (outcome.status === 'fulfilled') {
@@ -1388,15 +1389,18 @@ const App: React.FC = () => {
                 } else {
                     failedCount++;
                     console.error("Generation failed for an angle:", outcome.reason);
+                    errors.push(outcome.reason instanceof Error ? outcome.reason.message : String(outcome.reason));
                 }
             }
             
             if (results.length === 0 && failedCount > 0) {
-                alert("Generation failed for all requested shots. Please try again.");
+                const uniqueErrors = Array.from(new Set(errors));
+                alert(`Generation failed for all requested shots. Details:\n\n${uniqueErrors.join('\n')}\n\nPlease verify your API key and try again.`);
                 setPage(Page.SelectScene);
                 return;
             } else if (failedCount > 0) {
-                alert(`Generated ${results.length} shots. ${failedCount} shot(s) failed due to an error.`);
+                const uniqueErrors = Array.from(new Set(errors));
+                alert(`Generated ${results.length} shots. ${failedCount} shot(s) failed.\nErrors:\n${uniqueErrors.join('\n')}`);
             }
 
             setGenImages(results);
