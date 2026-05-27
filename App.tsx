@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
     ArrowLeft, Crown, Menu, Car, Wrench, Calendar, ArrowRight, MapPin, 
     X, ImagePlus, UserPlus, Check, Info, Sparkles, Film, Download, 
-    RefreshCw, Home, Mic, Edit, Send, Volume2, Cloud
+    RefreshCw, Home, Mic, Edit, Send, Volume2, Cloud, Settings
 } from 'lucide-react';
 // Google Drive integration removed
 
@@ -26,7 +26,7 @@ const downloadFile = (url: string, filename: string) => {
 
 // --- Shared UI Components ---
 
-const Header: React.FC<{ title: string; onBack?: () => void; rightElement?: React.ReactNode; logoUrl?: string | null }> = ({ title, onBack, rightElement, logoUrl }) => (
+const Header: React.FC<{ title: string; onBack?: () => void; rightElement?: React.ReactNode; logoUrl?: string | null; onSettingsClick?: () => void }> = ({ title, onBack, rightElement, logoUrl, onSettingsClick }) => (
     <header className="flex items-center p-6 pb-4 justify-between sticky top-0 z-50 bg-black/80 backdrop-blur-xl border-b border-white/5">
         {onBack ? (
             <button onClick={onBack} className="text-white flex size-10 shrink-0 items-center justify-center rounded-full hover:bg-white/5 transition-colors">
@@ -34,7 +34,12 @@ const Header: React.FC<{ title: string; onBack?: () => void; rightElement?: Reac
             </button>
         ) : <div className="size-10"></div>}
         <h1 className="text-white text-base font-black tracking-[0.1em] uppercase flex-1 text-center">{title}</h1>
-        <div className="flex items-center justify-center min-w-[40px]">
+        <div className="flex items-center justify-center gap-2 min-w-[40px]">
+            {onSettingsClick && (
+                <button onClick={onSettingsClick} className="text-white/60 hover:text-white flex size-8 items-center justify-center rounded-full hover:bg-white/5 transition-colors">
+                    <Settings className="size-5" />
+                </button>
+            )}
             {rightElement || (
                 logoUrl ? (
                     <img src={logoUrl} alt="Logo" className="h-7 w-auto object-contain max-w-[80px] rounded border border-white/10" />
@@ -71,7 +76,7 @@ const LuxuryButton: React.FC<{
 
 // --- Screens ---
 
-const WelcomeScreen: React.FC<{ onGetStarted: () => void; onStartLive: () => void; logoUrl?: string | null }> = ({ onGetStarted, onStartLive, logoUrl }) => (
+const WelcomeScreen: React.FC<{ onGetStarted: () => void; onStartLive: () => void; logoUrl?: string | null; onSettingsClick?: () => void }> = ({ onGetStarted, onStartLive, logoUrl, onSettingsClick }) => (
     <motion.div 
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         className="relative min-h-screen flex flex-col w-full overflow-hidden bg-black"
@@ -93,9 +98,16 @@ const WelcomeScreen: React.FC<{ onGetStarted: () => void; onStartLive: () => voi
                     </>
                 )}
             </div>
-            <button onClick={onStartLive} className="size-12 rounded-full border border-white/20 bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/10 transition-all">
-                <Menu className="size-6" />
-            </button>
+            <div className="flex items-center gap-2">
+                {onSettingsClick && (
+                    <button onClick={onSettingsClick} className="size-12 rounded-full border border-white/20 bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/10 transition-all">
+                        <Settings className="size-6" />
+                    </button>
+                )}
+                <button onClick={onStartLive} className="size-12 rounded-full border border-white/20 bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-white/10 transition-all">
+                    <Menu className="size-6" />
+                </button>
+            </div>
         </header>
 
         <main className="relative z-10 flex flex-col flex-grow items-center justify-center px-6 text-center">
@@ -163,7 +175,8 @@ const UploadScreen: React.FC<{
     onFilesReady: (front: ImageFile, rear: ImageFile | null, person: File | null, logo: File | null) => void; 
     onBack: () => void;
     logoUrl?: string | null;
-}> = ({ onFilesReady, onBack, logoUrl }) => {
+    onSettingsClick?: () => void;
+}> = ({ onFilesReady, onBack, logoUrl, onSettingsClick }) => {
     const [frontImage, setFrontImage] = useState<ImageFile | null>(null);
     const [rearImage, setRearImage] = useState<ImageFile | null>(null);
     const [personFile, setPersonFile] = useState<File | null>(null);
@@ -226,6 +239,7 @@ const UploadScreen: React.FC<{
                 title="Assets Selection" 
                 onBack={onBack} 
                 logoUrl={logoPreview}
+                onSettingsClick={onSettingsClick}
             />
             <main className="flex-1 px-6 py-8 space-y-12 overflow-y-auto pb-32">
                 <div className="space-y-6">
@@ -389,7 +403,8 @@ const SelectSceneScreen: React.FC<{
     conciergeSuggestedPrompt: string | null;
     clearConciergePrompt: () => void;
     logoUrl?: string | null;
-}> = ({ uploadedImages, personImage, onGenerate, onGenerateVideo, onBack, conciergeSuggestedPrompt, clearConciergePrompt, logoUrl }) => {
+    onSettingsClick?: () => void;
+}> = ({ uploadedImages, personImage, onGenerate, onGenerateVideo, onBack, conciergeSuggestedPrompt, clearConciergePrompt, logoUrl, onSettingsClick }) => {
      const [mode, setMode] = useState<'image' | 'video'>('image');
     const [scene, setScene] = useState(SCENES[0]);
     const [customDesc, setCustomDesc] = useState(SCENES[0].description);
@@ -469,6 +484,7 @@ const SelectSceneScreen: React.FC<{
                 title="Creative Studio" 
                 onBack={onBack} 
                 logoUrl={logoUrl}
+                onSettingsClick={onSettingsClick}
             />
             <main className="flex-1 px-6 py-8 space-y-10 overflow-y-auto pb-32">
                 {/* Mode Selector */}
@@ -1335,6 +1351,13 @@ const App: React.FC = () => {
     const [genVideo, setGenVideo] = useState<string | null>(null);
     const [editingImage, setEditingImage] = useState<string>("");
     const [conciergeSuggestedPrompt, setConciergeSuggestedPrompt] = useState<string | null>(null);
+    const [showSettings, setShowSettings] = useState<boolean>(false);
+    const [customApiKey, setCustomApiKey] = useState<string>("");
+
+    useEffect(() => {
+        const storedKey = localStorage.getItem('USER_GEMINI_API_KEY') || '';
+        setCustomApiKey(storedKey);
+    }, []);
 
     const handleGenerateImages = async (
         desc: string, 
@@ -1417,11 +1440,12 @@ const App: React.FC = () => {
     return (
         <div className="max-w-md mx-auto bg-background-dark min-h-screen shadow-2xl relative overflow-x-hidden">
             <AnimatePresence mode="wait">
-                {page === Page.Welcome && <WelcomeScreen key="welcome" onGetStarted={() => setPage(Page.Upload)} onStartLive={() => setPage(Page.LiveAssistant)} logoUrl={dealershipLogoPreview} />}
+                {page === Page.Welcome && <WelcomeScreen key="welcome" onGetStarted={() => setPage(Page.Upload)} onStartLive={() => setPage(Page.LiveAssistant)} logoUrl={dealershipLogoPreview} onSettingsClick={() => setShowSettings(true)} />}
                 {page === Page.Upload && (
                     <UploadScreen 
                         key="upload"
                         logoUrl={dealershipLogoPreview}
+                        onSettingsClick={() => setShowSettings(true)}
                         onFilesReady={(front, rear, person, logo) => { 
                             setUploadedImages({ front, rear }); 
                             setPersonImage(person);
@@ -1448,6 +1472,7 @@ const App: React.FC = () => {
                         conciergeSuggestedPrompt={conciergeSuggestedPrompt}
                         clearConciergePrompt={() => setConciergeSuggestedPrompt(null)}
                         logoUrl={dealershipLogoPreview}
+                        onSettingsClick={() => setShowSettings(true)}
                     />
                 )}
                 {page === Page.Generating && <GeneratingScreen key="gen-img" mode="image" />}
@@ -1492,6 +1517,76 @@ const App: React.FC = () => {
                     />
                 )}
             </AnimatePresence>
+
+            {showSettings && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-6">
+                    <motion.div 
+                        initial={{ opacity: 0, scale: 0.95 }} 
+                        animate={{ opacity: 1, scale: 1 }} 
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="bg-[#0b0c10] border border-white/10 p-6 rounded-2xl w-full max-w-sm space-y-6 shadow-2xl relative"
+                    >
+                        <button 
+                            onClick={() => setShowSettings(false)}
+                            className="absolute top-4 right-4 text-white/40 hover:text-white transition-colors"
+                        >
+                            <X className="size-5" />
+                        </button>
+                        
+                        <div className="space-y-2">
+                            <h2 className="text-xl font-black text-white tracking-tight uppercase flex items-center gap-2">
+                                <Settings className="text-primary size-5" />
+                                API Settings
+                            </h2>
+                            <p className="text-gray-500 text-xs font-semibold leading-relaxed">
+                                The default demo API key has exceeded its billing quota. Paste your own Gemini API key below to continue generating vehicles.
+                            </p>
+                        </div>
+                        
+                        <div className="space-y-2">
+                            <label className="text-[10px] font-black uppercase tracking-widest text-white/60">
+                                Gemini API Key
+                            </label>
+                            <input 
+                                type="password" 
+                                value={customApiKey}
+                                onChange={(e) => setCustomApiKey(e.target.value)}
+                                className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-primary/50 focus:ring-1 focus:ring-primary/50 outline-none transition-all placeholder:text-gray-600 font-medium"
+                                placeholder="AIzaSy..."
+                            />
+                        </div>
+                        
+                        <div className="flex gap-3">
+                            <button 
+                                onClick={() => {
+                                    if (customApiKey.trim()) {
+                                        localStorage.setItem('USER_GEMINI_API_KEY', customApiKey.trim());
+                                        alert("API Key saved successfully!");
+                                    } else {
+                                        localStorage.removeItem('USER_GEMINI_API_KEY');
+                                        alert("Custom API Key cleared.");
+                                    }
+                                    setShowSettings(false);
+                                }}
+                                className="flex-1 py-3 bg-[#c5a880] text-black rounded-xl font-black uppercase tracking-wider text-xs hover:bg-[#b0936b] transition-all"
+                            >
+                                Save Settings
+                            </button>
+                            <button 
+                                onClick={() => {
+                                    localStorage.removeItem('USER_GEMINI_API_KEY');
+                                    setCustomApiKey("");
+                                    alert("Custom API Key cleared.");
+                                    setShowSettings(false);
+                                }}
+                                className="px-4 py-3 border border-white/10 bg-white/5 text-white rounded-xl font-black uppercase tracking-wider text-xs hover:bg-white/10 transition-all"
+                            >
+                                Clear
+                            </button>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
         </div>
     );
 };

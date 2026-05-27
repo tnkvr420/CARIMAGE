@@ -3,11 +3,22 @@
 import { GoogleGenAI, GenerateContentResponse, ThinkingLevel, Part } from "@google/genai";
 import { ImageFile } from '../types';
 
+let currentApiKey: string | null = null;
 let aiClientInstance: GoogleGenAI | null = null;
 
+export function getApiKey(): string {
+  const customKey = typeof window !== 'undefined' ? localStorage.getItem('USER_GEMINI_API_KEY') : null;
+  return customKey || process.env.API_KEY || '';
+}
+
 function getAiClient(): GoogleGenAI {
-  if (!aiClientInstance) {
-    aiClientInstance = new GoogleGenAI({ apiKey: process.env.API_KEY! });
+  const apiKey = getApiKey();
+  if (!apiKey) {
+    throw new Error("No Gemini API key found. Please configure it in your Settings or environment.");
+  }
+  if (!aiClientInstance || currentApiKey !== apiKey) {
+    aiClientInstance = new GoogleGenAI({ apiKey });
+    currentApiKey = apiKey;
   }
   return aiClientInstance;
 }
@@ -258,7 +269,7 @@ export async function generateVideo(
     throw new Error("Video generation failed to produce a download link.");
   }
   
-  const response = await fetch(`${downloadLink}&key=${process.env.API_KEY}`);
+  const response = await fetch(`${downloadLink}&key=${getApiKey()}`);
   if (!response.ok) {
     throw new Error(`Failed to download video: ${response.statusText}`);
   }
