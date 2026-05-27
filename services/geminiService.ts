@@ -72,7 +72,9 @@ export async function generateImage(
   styleDescription: string,
   backgroundImage: File | null = null,
   imageSize: '1K' | '2K' | '4K' = '1K',
-  logoImage: File | null = null
+  logoImage: File | null = null,
+  headlightsOn: boolean = false,
+  customTextLogo: string = ''
 ): Promise<string> {
   const ai = getAiClient();
   
@@ -110,7 +112,7 @@ export async function generateImage(
     logoPartIndex = finalParts.length - 1;
   }
 
-  const baseInstruction = `Create a single image with a ${aspectRatio} aspect ratio featuring the EXACT car from the provided reference image. The camera angle should be: "${angleName}". ${styleDescription} ${realismInstructions}`;
+  const baseInstruction = `Create a single image with a ${aspectRatio} aspect ratio featuring the EXACT car from the provided reference image. The camera angle should be: "${angleName}". ${styleDescription} ${realismInstructions}${headlightsOn ? ' The car\'s headlights MUST be turned ON and glowing brightly.' : ''}`;
 
   if (bgPartIndex !== -1) {
     textPrompt = `${baseInstruction} Use the background from the LAST image provided as a virtual background. Place the car realistically into this virtual background, matching the lighting, environment, and shadows perfectly.`;
@@ -130,6 +132,10 @@ export async function generateImage(
 
   if (logoPartIndex !== -1) {
     textPrompt += ` CRITICAL: Please also seamlessly and cleanly incorporate the dealership logo from image index ${logoPartIndex} into the scene's environment (for instance, on a showroom wall plaque, window decal, backdrop graphic, outdoor dealership sign, or billboard). The logo must look like it is physically part of the environment, respecting the perspective, lighting, shadows, and focus of the scene. Do NOT place it as a simple floating digital watermark overlay.`;
+  }
+
+  if (customTextLogo) {
+    textPrompt += ` CRITICAL: Creatively incorporate the exact text '${customTextLogo}' into the scene. For example, as a glowing neon sign, integrated into the architecture, or as a stylish watermark, making it look natural and visually striking within the environment.`;
   }
 
   const response: GenerateContentResponse = await ai.models.generateContent({

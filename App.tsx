@@ -397,7 +397,7 @@ const UploadScreen: React.FC<{
 const SelectSceneScreen: React.FC<{ 
     uploadedImages: ImageFile[];
     personImage: File | null;
-    onGenerate: (desc: string, count: number, ratio: string, sceneBgUrl: string, imageSize: '1K' | '2K' | '4K', styleDescription: string, bgFile: File | null) => void;
+    onGenerate: (desc: string, count: number, ratio: string, sceneBgUrl: string, imageSize: '1K' | '2K' | '4K', styleDescription: string, bgFile: File | null, headlightsOn: boolean, customTextLogo: string) => void;
     onGenerateVideo: (images: (string | File)[], prompt: string, ratio: '16:9' | '16:9') => void;
     onBack: () => void;
     conciergeSuggestedPrompt: string | null;
@@ -414,6 +414,8 @@ const SelectSceneScreen: React.FC<{
     const [videoPrompt, setVideoPrompt] = useState('The car driving smoothly along a scenic highway at sunset.');
     const [selectedStyleId, setSelectedStyleId] = useState<string>(STYLE_PRESETS[0].id);
     const [customBgFile, setCustomBgFile] = useState<File | null>(null);
+    const [headlightsOn, setHeadlightsOn] = useState(false);
+    const [customTextLogo, setCustomTextLogo] = useState('');
     // Google Drive state removed
 
     // Load concierge suggestions
@@ -516,6 +518,30 @@ const SelectSceneScreen: React.FC<{
                                 </div>
                             </div>
                         )}
+
+                        <div className="space-y-4">
+                            <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Additional Effects</h3>
+                            <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+                                <span className="text-sm font-bold text-white">Headlights On</span>
+                                <button
+                                    onClick={() => setHeadlightsOn(!headlightsOn)}
+                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${headlightsOn ? 'bg-primary' : 'bg-gray-600'}`}
+                                >
+                                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${headlightsOn ? 'translate-x-6' : 'translate-x-1'}`} />
+                                </button>
+                            </div>
+                            <div className="space-y-2">
+                                <label className="text-sm font-bold text-white block">Custom Text Element</label>
+                                <input
+                                    type="text"
+                                    value={customTextLogo}
+                                    onChange={(e) => setCustomTextLogo(e.target.value)}
+                                    placeholder="Enter text to integrate (e.g. Glowing Logo)"
+                                    className="w-full p-4 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:border-primary/50 outline-none"
+                                />
+                                <p className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Text will be creatively integrated into the scene</p>
+                            </div>
+                        </div>
 
                         <div className="space-y-5">
                             <h3 className="text-xs font-black uppercase tracking-[0.2em] text-gray-500">Virtual Backgrounds</h3>
@@ -699,7 +725,9 @@ const SelectSceneScreen: React.FC<{
                                 scene.imageUrl || "", 
                                 imageSize, 
                                 selectedStyle.description, 
-                                scene.id === 'custom' ? customBgFile : null
+                                scene.id === 'custom' ? customBgFile : null,
+                                headlightsOn,
+                                customTextLogo
                             );
                         } else {
                             const refs = allRefs.filter(img => selectedRefs.includes(img.id)).map(img => img.file);
@@ -1366,7 +1394,9 @@ const App: React.FC = () => {
         sceneBgUrl: string, 
         imageSize: '1K'|'2K'|'4K', 
         styleDescription: string, 
-        bgFile: File | null
+        bgFile: File | null,
+        headlightsOn: boolean,
+        customTextLogo: string
     ) => {
         setPage(Page.Generating);
         try {
@@ -1374,7 +1404,7 @@ const App: React.FC = () => {
             const imageRefs = [uploadedImages.front, uploadedImages.rear].filter(Boolean) as ImageFile[];
 
             const promises = requestedAngles.map(angle =>
-                generateImage(imageRefs, desc, angle.name, !!personImage, personImage, ratio, styleDescription, bgFile, imageSize, dealershipLogo)
+                generateImage(imageRefs, desc, angle.name, !!personImage, personImage, ratio, styleDescription, bgFile, imageSize, dealershipLogo, headlightsOn, customTextLogo)
             );
 
             const outcomes = await Promise.allSettled(promises);
